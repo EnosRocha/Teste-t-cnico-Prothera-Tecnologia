@@ -3,6 +3,7 @@ import entities.Funcionario;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.text.spi.DateFormatProvider;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -73,10 +74,10 @@ public class Main {
 
 
         funcionarios.stream()
-                .min(Comparator.comparing(f -> f.getDataDeNascimento()))
-                .ifPresent(f -> {
-                    long idade = ChronoUnit.YEARS.between(f.getDataDeNascimento(), LocalDate.now());
-                    System.out.println("Mais velho: " + f.getName() + " | Idade: " + idade + " anos");
+                .min(Comparator.comparing(funcionario -> funcionario.getDataDeNascimento()))
+                .ifPresent(funcionario -> {
+                    long idade = ChronoUnit.YEARS.between(funcionario.getDataDeNascimento(), LocalDate.now());
+                    System.out.println("Mais velho: " + funcionario.getName() + " | Idade: " + idade + " anos");
                 });
 
         System.out.println("----------------------");
@@ -86,9 +87,20 @@ public class Main {
 
         System.out.println("----------------------");
 
+        BigDecimal totalSalarios = funcionarios.stream()
+                .map(Funcionario::getSalario)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        NumberFormat formatacaoDeValorParaValorBrasil = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
+        formatacaoDeValorParaValorBrasil.setMinimumFractionDigits(2);
+        System.out.println("Total salários: R$ " + formatacaoDeValorParaValorBrasil.format(totalSalarios));
+
+
+        System.out.println("----------------------");
+
         funcionarios.forEach(funcionario -> {
             BigDecimal quantidadeSalarios = funcionario.getSalario().divide(new BigDecimal("1212.00"), 2, RoundingMode.HALF_UP);
-            System.out.println(funcionario.getName() + " recebe " + quantidadeSalarios + " salários mínimos");
+            System.out.println("O(a) funcionário(a) " + funcionario.getName() + " recebe " + quantidadeSalarios + " salários mínimos");
         });
 
         System.out.println("------------------");
